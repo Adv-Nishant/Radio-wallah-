@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#070b16">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="तरंग Radio">
+<title>तरंग · Live Indian Radio</title>
+<meta name="description" content="Stream All India Radio, regional, and language radio stations live and free — a single page you can save and open anytime.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/icon-16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Devanagari:wght@600&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   तरंग (Tarang) — design tokens
+   Palette: deep navy ground + antique brass/gold + crocodile teal, drawn from
+   an old broadcast-radio dial rather than a generic "app" palette. Display
+   type is Cormorant Garamond (paired with Noto Serif Devanagari for the
+   wordmark); UI type is Space Grotesk; numbers/badges use IBM Plex Mono, the
+   way a real radio's frequency counter would set its digits.
+   ========================================================================== */
+:root {
+  --font-display: 'Cormorant Garamond', 'Noto Serif Devanagari', Georgia, serif;
+  --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --navy-950: #070b16;
+  --navy-900: #0c1224;
+  --navy-850: #0f1629;
+  --navy-800: #141d34;
+  --navy-700: #1d2842;
+  --navy-600: #2b3958;
+
+  --gold-300: #eccf8a;
+  --gold-400: #d9b35d;
+  --gold-500: #c2963a;
+
+  --teal-300: #7cc4b7;
+  --teal-400: #4b9b8e;
+  --teal-500: #357c72;
+
+  --saffron-400: #e0904f;
+  --cream-050: #fbf8f0;
+  --cream-100: #f5efdf;
+  --danger-400: #d9776a;
+  --success-400: #57b78c;
+
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 22px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 6px 20px rgba(4, 7, 16, 0.28);
+  --shadow-lift: 0 12px 32px rgba(4, 7, 16, 0.4);
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+html[data-theme='dark'] {
+  --bg: var(--navy-950);
+  --bg-elevated: var(--navy-900);
+  --surface: var(--navy-800);
+  --surface-hover: var(--navy-700);
+  --border: rgba(245, 239, 223, 0.09);
+  --border-strong: rgba(245, 239, 223, 0.16);
+  --text-primary: var(--cream-100);
+  --text-secondary: #97a0b8;
+  --text-tertiary: #6d7690;
+  --accent: var(--gold-400);
+  --accent-strong: var(--gold-300);
+  --accent-ink: var(--navy-950);
+  --scrim: rgba(5, 8, 16, 0.6);
+}
+
+html[data-theme='light'] {
+  --bg: #f3ecda;
+  --bg-elevated: #fbf7ec;
+  --surface: #ffffff;
+  --surface-hover: #f4efe2;
+  --border: rgba(18, 22, 38, 0.1);
+  --border-strong: rgba(18, 22, 38, 0.18);
+  --text-primary: #171c2f;
+  --text-secondary: #565f7c;
+  --text-tertiary: #838ba5;
+  --accent: var(--gold-500);
+  --accent-strong: #a87b2a;
+  --accent-ink: #fffdf7;
+  --scrim: rgba(23, 20, 10, 0.35);
+}
+
+/* ==========================================================================
+   Reset & base
+   ========================================================================== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+  transition: background-color .25s ease, color .25s ease;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+input, select { font: inherit; color: inherit; }
+img { max-width: 100%; display: block; }
+svg { width: 100%; height: 100%; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.icon { width: 20px; height: 20px; display: inline-block; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-lg { width: 26px; height: 26px; }
+
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ==========================================================================
+   App shell
+   ========================================================================== */
+#app {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100%;
+  position: relative;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(217, 179, 93, 0.07), transparent 45%),
+    radial-gradient(circle at 85% 8%, rgba(75, 155, 142, 0.08), transparent 40%),
+    var(--bg);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(18px + var(--safe-top)) 20px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, var(--bg) 70%, transparent);
+  backdrop-filter: blur(6px);
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 28px;
+  color: var(--text-primary);
+  letter-spacing: .02em;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+.logo-mark { color: var(--accent); }
+.logo-sub {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  transition: background-color .16s ease, color .16s ease, transform .12s ease;
+}
+.icon-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.icon-btn:active { transform: scale(.9); }
+.header-actions { display: flex; gap: 4px; align-items: center; }
+
+/* ==========================================================================
+   Offline banner
+   ========================================================================== */
+.offline-banner {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0 20px 8px;
+  padding: 9px 14px;
+  border-radius: var(--radius-s);
+  background: rgba(217, 119, 106, 0.12);
+  border: 1px solid rgba(217, 119, 106, 0.3);
+  color: var(--danger-400);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.offline-banner.show { display: flex; }
+.offline-banner .icon { width: 15px; height: 15px; flex: none; }
+
+/* ==========================================================================
+   Views
+   ========================================================================== */
+main { padding-bottom: calc(96px + var(--safe-bottom)); }
+.view { display: none; padding: 0 20px; animation: view-in .28s ease; }
+.view.active { display: block; }
+@keyframes view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 22px 0 12px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .tick { color: var(--accent); font-size: 15px; }
+
+/* Horizontal rails (trending / recents) */
+.rail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  scroll-snap-type: x proximity;
+}
+.rail > * { scroll-snap-align: start; }
+
+/* Category chip rail */
+.chip-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 4px;
+  margin: 14px 0 6px;
+}
+.chip {
+  flex: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13.2px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform .14s ease, background-color .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.chip--active {
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  color: var(--navy-950);
+  border-color: transparent;
+  box-shadow: 0 3px 12px rgba(217, 179, 93, .32);
+}
+.chip:active { transform: scale(.94); }
+
+.filter-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.select-wrap .icon { position: absolute; right: 10px; width: 14px; height: 14px; pointer-events: none; color: var(--text-tertiary); }
+select#state-select {
+  appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  padding: 7px 30px 7px 14px;
+  font-size: 12.8px;
+}
+
+/* ==========================================================================
+   Station cards
+   ========================================================================== */
+.stations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 12px;
+  padding-bottom: 4px;
+}
+.stations-grid--list { grid-template-columns: 1fr; }
+
+.station-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  transition: transform .14s ease, border-color .16s ease, background-color .16s ease;
+  width: 100%;
+}
+.station-card:hover { border-color: var(--border-strong); }
+.station-card:active { transform: scale(.97); }
+
+.card-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.5 / 1;
+  background: var(--avatar-color, var(--navy-700));
+  overflow: hidden;
+}
+.card-art-fallback {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  color: rgba(255,255,255,.92);
+  text-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.card-art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.live-dot {
+  position: absolute; top: 8px; left: 8px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--success-400);
+  box-shadow: 0 0 0 2px rgba(7,11,22,.5);
+}
+.live-dot::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: var(--success-400);
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: .7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+.card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; }
+.card-title {
+  font-size: 13.6px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  line-height: 1.28;
+}
+.card-meta { font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-badges { display: flex; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.badge-official { color: var(--teal-400); border-color: rgba(75,155,142,.35); font-family: var(--font-body); }
+
+.card-fav {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(7, 11, 22, 0.45);
+  color: #fff;
+  backdrop-filter: blur(3px);
+  transition: transform .15s ease, color .15s ease;
+}
+.card-fav .icon { width: 15px; height: 15px; }
+.card-fav.is-fav { color: var(--gold-300); }
+.card-fav:active { transform: scale(.85); }
+
+/* List layout variant */
+.station-card--list { flex-direction: row; align-items: center; }
+.station-card--list .card-art { width: 68px; aspect-ratio: 1/1; flex: none; }
+.station-card--list .card-body { padding: 8px 12px; flex: 1; }
+.station-card--list .card-fav { position: static; margin-right: 10px; background: none; color: var(--text-tertiary); }
+.station-card--list .card-fav.is-fav { color: var(--accent); }
+
+/* Compact variant (trending / recents rails) */
+.station-card--compact { width: 118px; flex: none; }
+.station-card--compact .card-body { padding: 8px 10px 10px; }
+.station-card--compact .card-title { font-size: 12.5px; }
+
+/* Skeletons */
+.skeleton-card { pointer-events: none; border-color: var(--border); }
+.skeleton-shimmer {
+  position: relative;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  animation: shimmer 1.4s infinite;
+}
+.skeleton-line { display: block; height: 10px; border-radius: 5px; margin: 3px 0; }
+
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+/* Empty states */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 46px 20px;
+  color: var(--text-secondary);
+}
+.empty-state-icon { display: inline-block; width: 34px; height: 34px; color: var(--text-tertiary); margin-bottom: 12px; }
+.empty-state-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px; }
+.empty-state-hint { font-size: 12.8px; margin: 0; color: var(--text-tertiary); }
+
+/* ==========================================================================
+   Search
+   ========================================================================== */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 11px 16px;
+  margin-top: 8px;
+}
+.search-bar .icon { width: 17px; height: 17px; color: var(--text-tertiary); flex: none; }
+.search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14.5px;
+}
+.search-bar input::placeholder { color: var(--text-tertiary); }
+.search-clear { color: var(--text-tertiary); width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; }
+.search-clear .icon { width: 13px; height: 13px; }
+
+/* ==========================================================================
+   Bottom navigation
+   ========================================================================== */
+.bottom-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 30;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  padding: 8px 6px calc(8px + var(--safe-bottom));
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-s);
+  transition: color .15s ease;
+}
+.nav-btn .icon { width: 21px; height: 21px; }
+.nav-btn span { font-size: 10px; font-weight: 500; letter-spacing: .01em; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn:active { transform: scale(.92); }
+.nav-btn.disabled { opacity: .4; }
+
+/* Shift bottom nav + content up when the mini player is visible */
+body.has-mini-player .bottom-nav { padding-bottom: calc(8px + var(--safe-bottom)); transform: translateY(0); }
+body.has-mini-player main { padding-bottom: calc(168px + var(--safe-bottom)); }
+
+/* ==========================================================================
+   Mini player
+   ========================================================================== */
+.mini-player {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(64px + var(--safe-bottom));
+  max-width: 536px;
+  margin: 0 auto;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(140%);
+  opacity: 0;
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .28s ease;
+}
+.mini-player.visible { transform: translateY(0); opacity: 1; }
+
+.mini-art {
+  width: 42px; height: 42px; border-radius: 11px; flex: none;
+  position: relative; overflow: hidden;
+  background: var(--avatar-color, var(--navy-700));
+}
+.mini-art .card-art-fallback { font-size: 15px; }
+.mini-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.mini-info { flex: 1; min-width: 0; }
+#mini-title { font-size: 13.4px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-status { font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 5px; }
+.mini-status.status-playing { color: var(--success-400); }
+.mini-status.status-reconnecting, .mini-status.status-loading { color: var(--accent); }
+.mini-status.status-error { color: var(--danger-400); }
+
+.mini-control { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.mini-control.primary { width: 38px; height: 38px; background: var(--accent); color: var(--accent-ink); }
+.mini-control.primary .icon { width: 17px; height: 17px; }
+#mini-fav { color: var(--text-tertiary); }
+#mini-fav.is-fav { color: var(--accent); }
+
+/* ==========================================================================
+   Now Playing (full-screen sheet)
+   ========================================================================== */
+.now-playing {
+  position: fixed; inset: 0;
+  z-index: 50;
+  background: linear-gradient(180deg, var(--navy-900), var(--navy-950) 60%);
+  color: var(--cream-100);
+  transform: translateY(100%);
+  transition: transform .38s cubic-bezier(.2,.85,.25,1);
+  display: flex;
+  flex-direction: column;
+  padding: calc(14px + var(--safe-top)) 22px calc(22px + var(--safe-bottom));
+  max-width: 560px;
+  margin: 0 auto;
+}
+.now-playing.open { transform: translateY(0); }
+.np-drag-handle { width: 40px; height: 4px; border-radius: 3px; background: rgba(245,239,223,.22); margin: 0 auto 6px; }
+.np-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.np-topbar .icon-btn { color: var(--cream-100); }
+.np-topbar .icon-btn:hover { background: rgba(245,239,223,.08); }
+.np-eyebrow { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-tertiary); text-align: center; }
+
+.np-art-wrap { display: flex; justify-content: center; margin: 18px 0 22px; }
+#np-art {
+  width: 210px; height: 210px; border-radius: 28px;
+  position: relative; overflow: hidden;
+  background: var(--avatar-color, var(--navy-700));
+  box-shadow: 0 20px 46px rgba(0,0,0,.45);
+}
+#np-art .card-art-fallback { font-size: 64px; }
+#np-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.np-titles { text-align: center; margin-bottom: 6px; }
+#np-title { font-family: var(--font-display); font-size: 27px; font-weight: 600; margin: 0 0 4px; }
+#np-meta { font-size: 12.5px; color: var(--text-tertiary); }
+
+.np-status-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0 4px; min-height: 20px; }
+.np-status { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); }
+.np-status.status-playing { color: var(--success-400); }
+.np-status.status-reconnecting, .np-status.status-loading { color: var(--accent); }
+.np-status.status-error { color: var(--danger-400); }
+
+.equalizer { display: flex; align-items: flex-end; gap: 4px; height: 22px; }
+.equalizer span {
+  width: 4px; border-radius: 2px; height: 25%;
+  background: linear-gradient(180deg, var(--gold-300), var(--teal-400));
+  animation-play-state: paused;
+}
+.equalizer.playing span { animation-play-state: running; }
+.equalizer span:nth-child(1) { animation: eq-bounce .9s ease-in-out infinite; }
+.equalizer span:nth-child(2) { animation: eq-bounce .72s ease-in-out infinite .1s; }
+.equalizer span:nth-child(3) { animation: eq-bounce 1.05s ease-in-out infinite .05s; }
+.equalizer span:nth-child(4) { animation: eq-bounce .65s ease-in-out infinite .18s; }
+.equalizer span:nth-child(5) { animation: eq-bounce .95s ease-in-out infinite .12s; }
+@keyframes eq-bounce { 0%, 100% { height: 22%; } 50% { height: 100%; } }
+
+.tuning-dial { position: relative; width: 20px; height: 13px; display: inline-block; }
+.tuning-dial::before {
+  content: ''; position: absolute; inset: 0;
+  border: 2px solid var(--accent); border-bottom-color: transparent; opacity: .55;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.tuning-dial::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  width: 2px; height: 11px; background: var(--accent);
+  transform-origin: bottom center;
+  animation: dial-sweep 1.1s ease-in-out infinite;
+}
+@keyframes dial-sweep {
+  0%, 100% { transform: translateX(-50%) rotate(-30deg); }
+  50% { transform: translateX(-50%) rotate(30deg); }
+}
+
+.np-retry-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.np-pill-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong); font-size: 12.5px; font-weight: 500;
+  color: var(--cream-100);
+}
+.np-pill-btn .icon { width: 14px; height: 14px; }
+.np-pill-btn.accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+.np-transport { display: flex; align-items: center; justify-content: center; gap: 26px; margin: 18px 0 20px; }
+.np-transport-btn { color: var(--cream-100); }
+.np-transport-btn .icon { width: 24px; height: 24px; }
+.np-play-btn {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  color: var(--navy-950);
+  display: grid; place-items: center;
+  box-shadow: 0 10px 26px rgba(217,179,93,.4);
+}
+.np-play-btn:active { transform: scale(.94); }
+.np-play-btn .icon { width: 26px; height: 26px; }
+
+.np-secondary-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; }
+.np-secondary-row .icon-btn { color: var(--cream-100); }
+.np-secondary-row .icon-btn.active { color: var(--accent); }
+#np-sleep-label { font-size: 10px; display: block; margin-top: -2px; }
+
+.np-volume-row { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 10px; }
+.np-volume-row .icon-btn { color: var(--text-secondary); flex: none; }
+input[type='range'] {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(245,239,223,.16);
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  cursor: pointer;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; border: none;
+  background: var(--accent); cursor: pointer;
+}
+
+/* Body scroll lock + fade-in of the previously-playing screen dims when Now Playing is open */
+body.np-open { overflow: hidden; }
+
+/* ==========================================================================
+   Sleep sheet
+   ========================================================================== */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: var(--scrim);
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease;
+}
+.sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.sleep-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 61;
+  max-width: 560px; margin: 0 auto;
+  background: var(--bg-elevated);
+  border-radius: 22px 22px 0 0;
+  padding: 14px 22px calc(26px + var(--safe-bottom));
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.2,.85,.25,1);
+  border: 1px solid var(--border-strong);
+  border-bottom: none;
+}
+.sleep-sheet.open { transform: translateY(0); }
+.sleep-sheet h3 { font-family: var(--font-display); font-size: 19px; margin: 6px 0 14px; text-align: center; }
+.sleep-options { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.sleep-options button {
+  padding: 12px 18px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+  min-width: 68px;
+}
+.sleep-options button[data-sleep="0"] { background: none; border-style: dashed; color: var(--text-secondary); }
+.sleep-options button:active { transform: scale(.94); }
+
+/* ==========================================================================
+   Toast
+   ========================================================================== */
+.toast {
+  position: fixed;
+  left: 50%; bottom: calc(150px + var(--safe-bottom));
+  transform: translate(-50%, 10px);
+  z-index: 80;
+  background: var(--navy-900);
+  color: var(--cream-100);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 12.8px;
+  border: 1px solid var(--border-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+  max-width: 80%;
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ==========================================================================
+   Responsive (tablet / desktop)
+   ========================================================================== */
+@media (min-width: 640px) {
+  #app { max-width: 720px; }
+  .bottom-nav, .mini-player, .now-playing, .sleep-sheet { max-width: 720px; }
+  .stations-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+@media (min-width: 900px) {
+  #app { max-width: 880px; }
+  .bottom-nav, .mini-player, .now-playing, .sleep-sheet { max-width: 880px; }
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="offline-banner" id="offline-banner">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 3-2.1"/><path d="M12.5 8.5c3 0 5.5 1 7.5 2.7"/><path d="M16.8 5.5A15 15 0 0 0 12 4.5c-1.6 0-3.2.25-4.6.7"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></span>
+    <span>You're offline</span>
+  </div>
+
+  <header class="app-header">
+    <div class="logo"><span class="logo-mark">Live&nbsp;Indian&nbsp;Radio</span><span class="logo-sub"></span></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="install-app" type="button" hidden aria-label="Install app">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><polyline points="7 10 12 15 17 10"/><rect x="4" y="17" width="16" height="4" rx="1.5"/></svg></span>
+      </button>
+      <button class="icon-btn" id="layout-toggle" type="button" aria-label="Toggle grid or list view">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></span>
+      </button>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle light or dark theme">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></svg></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" data-view="home">
+
+      <h2 class="section-title"><span class="tick"></span> Trending in India</h2>
+      <div class="rail hide-scrollbar" id="trending-rail"></div>
+
+      <section id="recents-section" hidden>
+        <h2 class="section-title">Recently played</h2>
+        <div class="rail hide-scrollbar" id="recents-rail"></div>
+      </section>
+
+      <div class="chip-rail hide-scrollbar" id="category-chips"></div>
+
+      <div class="filter-row">
+        <div class="select-wrap">
+          <select id="state-select" aria-label="Filter by state"><option value="">All states</option></select>
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </div>
+      </div>
+
+      <div class="stations-grid" id="home-grid"></div>
+    </section>
+
+    <section class="view" data-view="search">
+      <div class="search-bar">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <input id="search-input" type="text" inputmode="search" placeholder="Station, city, or language" autocomplete="off" autocapitalize="off">
+        <button class="search-clear" id="search-clear" type="button" hidden aria-label="Clear search">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></span>
+        </button>
+      </div>
+      <div class="stations-grid" id="search-grid" style="margin-top:16px"></div>
+    </section>
+
+    <section class="view" data-view="favorites">
+      <h2 class="section-title">Favorites</h2>
+      <div class="stations-grid" id="favorites-grid"></div>
+    </section>
+  </main>
+
+  <!-- Mini player -->
+  <div class="mini-player" id="mini-player">
+    <div class="mini-art" id="mini-art"></div>
+    <div class="mini-info">
+      <div id="mini-title">\u2014</div>
+      <div class="mini-status" id="mini-status"></div>
+    </div>
+    <button class="mini-control" id="mini-fav" type="button" aria-label="Toggle favorite">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg></span>
+    </button>
+    <button class="mini-control primary" id="mini-play-pause" type="button" aria-label="Play or pause">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>
+    </button>
+  </div>
+
+  <!-- Now Playing -->
+  <div class="now-playing" id="now-playing">
+    <div class="np-drag-handle"></div>
+    <div class="np-topbar">
+      <button class="icon-btn" id="np-close" type="button" aria-label="Close now playing">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+      </button>
+      <div class="np-eyebrow">Now Playing</div>
+      <button class="icon-btn" id="np-share" type="button" aria-label="Share station">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></span>
+      </button>
+    </div>
+
+    <div class="np-art-wrap"><div id="np-art"></div></div>
+
+    <div class="np-titles">
+      <h1 id="np-title">\u2014</h1>
+      <div id="np-meta"></div>
+    </div>
+
+    <div class="np-status-row">
+      <span class="tuning-dial" id="np-dial" hidden></span>
+      <span class="np-status" id="np-status"></span>
+      <div class="equalizer" id="np-equalizer" hidden><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="np-retry-row">
+      <button class="np-pill-btn accent" id="np-retry" type="button" hidden>
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a8.5 8.5 0 1 0 1.9-9.1L1 10"/></svg></span>
+        Try again
+      </button>
+      <a class="np-pill-btn" id="np-official-link" href="#" target="_blank" rel="noopener" hidden>
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></svg></span>
+        Official AIR player
+      </a>
+    </div>
+
+    <div class="np-transport">
+      <button class="np-transport-btn" id="np-prev" type="button" aria-label="Previous station">
+        <span class="icon icon-lg"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 4 9 12 19 20 19 4"/><rect x="4.5" y="4" width="2.5" height="16"/></svg></span>
+      </button>
+      <button class="np-play-btn" id="np-play-pause" type="button" aria-label="Play or pause">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>
+      </button>
+      <button class="np-transport-btn" id="np-next" type="button" aria-label="Next station">
+        <span class="icon icon-lg"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="2.5" height="16"/></svg></span>
+      </button>
+    </div>
+
+    <div class="np-secondary-row">
+      <button class="icon-btn" id="np-fav" type="button" aria-label="Toggle favorite">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg></span>
+      </button>
+      <button class="icon-btn" id="np-sleep-btn" type="button" aria-label="Sleep timer">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg></span>
+        <span id="np-sleep-label">Sleep</span>
+      </button>
+    </div>
+
+    <div class="np-volume-row">
+      <button class="icon-btn" id="np-mute" type="button" aria-label="Mute">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 9 8 9 12 5 12 19 8 15 4 15 4 9"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7"/></svg></span>
+      </button>
+      <input type="range" id="np-volume" min="0" max="1" step="0.01" value="0.85" aria-label="Volume">
+    </div>
+  </div>
+
+  <!-- Sleep timer sheet -->
+  <div class="sheet-backdrop" id="sleep-backdrop"></div>
+  <div class="sleep-sheet" id="sleep-sheet">
+    <h3>Sleep timer</h3>
+    <div class="sleep-options">
+      <button type="button" data-sleep="15">15 min</button>
+      <button type="button" data-sleep="30">30 min</button>
+      <button type="button" data-sleep="45">45 min</button>
+      <button type="button" data-sleep="60">60 min</button>
+      <button type="button" data-sleep="0">Off</button>
+    </div>
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home" type="button">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" data-view="search" type="button">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span>Search</span>
+    </button>
+    <button class="nav-btn" data-view="favorites" type="button">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg></span>
+      <span>Favorites</span>
+    </button>
+    <button class="nav-btn disabled" id="nav-now-playing" type="button">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M7 8a7 7 0 0 1 10 0"/><path d="M4.5 5.5a10.5 10.5 0 0 1 15 0"/><path d="M9 21h6"/></svg></span>
+      <span>Now Playing</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <audio id="audio-player" preload="none"></audio>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+<script>
+'use strict';
+/* ==========================================================================
+   तरंग (Tarang) — Live Indian Radio
+   Single-file app. Sections below are self-contained modules (IIFEs) rather
+   than a bundler-based split, so the whole thing works as one plain <script>
+   with no build step. Read top to bottom: Utils -> Storage -> RadioAPI ->
+   Player -> Store -> Derived -> Icons -> UI -> App(init).
+   ========================================================================== */
+
+/* ==========================================================================
+   1. UTILITIES
+   ========================================================================== */
+const Utils = (() => {
+  function debounce(fn, wait = 250) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
+
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Deterministic hash so a given station always lands on the same fallback
+  // avatar colour instead of flickering between renders.
+  function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  const AVATAR_PALETTE = ['#d4a94a', '#3a9188', '#e08a3c', '#8b6fb3', '#c76b6b', '#4f8fd1', '#5fa88f'];
+
+  function initialsFor(name) {
+    if (!name) return '?';
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return '?';
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+
+  function colorFor(seed) {
+    const h = hashString(seed || 'x');
+    return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+  }
+
+  function titleCase(str) {
+    if (!str) return '';
+    return str.replace(/\w\S*/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
+  }
+
+  function formatClock(ms) {
+    const totalSec = Math.max(0, Math.round(ms / 1000));
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function uniqueSorted(arr) {
+    return [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  }
+
+  function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
+
+  return { debounce, escapeHTML, hashString, initialsFor, colorFor, titleCase, formatClock, uniqueSorted, clamp };
+})();
+
+/* ==========================================================================
+   2. STORAGE (localStorage wrapper — favorites, recents, prefs, cache)
+   ========================================================================== */
+const Storage = (() => {
+  const KEYS = {
+    FAVORITES: 'tarang:favorites',
+    RECENTS: 'tarang:recents',
+    THEME: 'tarang:theme',
+    LAYOUT: 'tarang:layout',
+    VOLUME: 'tarang:volume',
+    STATIONS_CACHE: 'tarang:stations-cache-v1',
+  };
+
+  function safeGet(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+  function safeSet(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      // Storage full, disabled, or private-browsing — app still works, just won't persist.
+      return false;
+    }
+  }
+
+  function getFavorites() { return safeGet(KEYS.FAVORITES, []); }
+  function isFavorite(uuid) { return getFavorites().some((s) => s.stationuuid === uuid); }
+  function toggleFavorite(station) {
+    const favs = getFavorites();
+    const idx = favs.findIndex((s) => s.stationuuid === station.stationuuid);
+    if (idx >= 0) {
+      favs.splice(idx, 1);
+      safeSet(KEYS.FAVORITES, favs);
+      return false;
+    }
+    favs.unshift(station);
+    safeSet(KEYS.FAVORITES, favs);
+    return true;
+  }
+
+  function getRecents() { return safeGet(KEYS.RECENTS, []); }
+  function addRecent(station) {
+    let recents = getRecents().filter((s) => s.stationuuid !== station.stationuuid);
+    recents.unshift({ ...station, playedAt: Date.now() });
+    recents = recents.slice(0, 15);
+    safeSet(KEYS.RECENTS, recents);
+  }
+
+  function getTheme() { return safeGet(KEYS.THEME, 'dark'); }
+  function setTheme(t) { safeSet(KEYS.THEME, t); }
+
+  function getLayout() { return safeGet(KEYS.LAYOUT, 'grid'); }
+  function setLayout(v) { safeSet(KEYS.LAYOUT, v); }
+
+  function getVolume() { return safeGet(KEYS.VOLUME, 0.85); }
+  function setVolume(v) { safeSet(KEYS.VOLUME, v); }
+
+  function getStationsCache() { return safeGet(KEYS.STATIONS_CACHE, null); }
+  function setStationsCache(stations, source) {
+    safeSet(KEYS.STATIONS_CACHE, { stations, fetchedAt: Date.now(), source });
+  }
+
+  return {
+    getFavorites, isFavorite, toggleFavorite,
+    getRecents, addRecent,
+    getTheme, setTheme,
+    getLayout, setLayout,
+    getVolume, setVolume,
+    getStationsCache, setStationsCache,
+  };
+})();
+
+/* ==========================================================================
+   3. RADIO BROWSER API WRAPPER
+   Free, keyless, community-run directory: https://api.radio-browser.info
+   No single server — "all.api.radio-browser.info" is a round-robin DNS pool
+   of independent mirrors, and any one can be briefly offline. We try the
+   pool address first, then walk a short list of named mirrors.
+   ========================================================================== */
+const RadioAPI = (() => {
+  const HOSTS = [
+    'https://all.api.radio-browser.info',
+    'https://de1.api.radio-browser.info',
+    'https://de2.api.radio-browser.info',
+    'https://nl1.api.radio-browser.info',
+    'https://at1.api.radio-browser.info',
+  ];
+  const REQUEST_TIMEOUT_MS = 8000;
+
+  function buildQuery(params) {
+    const usp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') usp.set(k, v);
+    });
+    return usp.toString();
+  }
+
+  async function fetchFromAnyHost(path) {
+    for (const host of HOSTS) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const res = await fetch(host + path, {
+          signal: controller.signal,
+          headers: { Accept: 'application/json' },
+          // Note: Radio Browser asks API consumers to send a descriptive
+          // User-Agent. Browsers block scripts from overriding that header,
+          // so this is a platform limitation, not an oversight here.
+        });
+        clearTimeout(timer);
+        if (!res.ok) continue;
+        const json = await res.json();
+        return json;
+      } catch (err) {
+        clearTimeout(timer);
+        continue; // try the next mirror
+      }
+    }
+    return null; // every mirror failed
+  }
+
+  async function fetchIndiaStations(limit = 3000) {
+    const qs = buildQuery({
+      countrycode: 'IN', hidebroken: true, limit, order: 'clickcount', reverse: true,
+    });
+    return fetchFromAnyHost('/json/stations/search?' + qs);
+  }
+
+  async function fetchTrending(limit = 16) {
+    const qs = buildQuery({ countrycode: 'IN', hidebroken: true, limit, order: 'clicktrend', reverse: true });
+    return fetchFromAnyHost('/json/stations/search?' + qs);
+  }
+
+  function registerClick(stationuuid) {
+    if (!stationuuid) return;
+    // Fire-and-forget listen ping. Radio Browser explicitly asks clients to call
+    // this on every play — it is how the community database tells a real listen
+    // apart from a dead entry, and it feeds the votes/clicktrend "trending" sort.
+    fetch(HOSTS[1] + '/json/url/' + encodeURIComponent(stationuuid)).catch(() => {});
+  }
+
+  // ---- Categorisation ----------------------------------------------------
+  // Tags on Radio Browser are free-text and community-submitted, so there is
+  // no authoritative "category" field to key off. Patterns below were checked
+  // against Prasar Bharati's own published AIR channel list.
+  const AIR_PATTERN = /\bair\b|akashvani|akashwani|vividh\s*bharati|all india radio|prasar\s*bharati|\bvbs\b|news\s*on\s*air/i;
+  const NEWS_PATTERN = /\bnews\b|समाचार/i;
+  const DEVOTIONAL_PATTERN = /devotional|bhakti|bhajan|spiritual|dharma|gurbani|kirtan|religious|temple/i;
+  const MUSIC_PATTERN = /music|top\s*40|film|bollywood|classical|folk|\bpop\b|retro|remix|\bhits\b/i;
+
+  const LANGUAGE_LIST = ['Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 'Punjabi', 'Malayalam', 'Kannada', 'Gujarati', 'Urdu', 'English'];
+
+  function categorize(station) {
+    const haystack = ((station.name || '') + ' ' + (station.tags || '')).toLowerCase();
+    const cats = new Set();
+    if (AIR_PATTERN.test(haystack)) cats.add('air');
+    if (NEWS_PATTERN.test(haystack)) cats.add('news');
+    if (DEVOTIONAL_PATTERN.test(haystack)) cats.add('devotional');
+    if (station.state) cats.add('regional');
+    if (MUSIC_PATTERN.test(haystack) || cats.size === 0) cats.add('music');
+    return cats;
+  }
+
+  function languagesFor(station) {
+    if (!station.language) return [];
+    return station.language.split(',').map((l) => Utils.titleCase(l.trim())).filter(Boolean);
+  }
+
+  // ---- Tier-3 fallback -----------------------------------------------------
+  // Triggered only if EVERY Radio Browser mirror is unreachable (the whole
+  // community network down, or this network blocking the domain outright).
+  // Prasar Bharati's live-stream endpoints are served dynamically by their own
+  // player and are not published as stable public URLs — rather than guess
+  // one and risk exactly the "fake/broken URL" problem, these entries hand
+  // off to Akashvani's own verified live-radio page instead of pretending to
+  // have a working embedded stream. Names/state/language are taken directly
+  // from Prasar Bharati's published channel list (prasarbharati.gov.in).
+  const FALLBACK_STATIONS = [
+    { stationuuid: 'fallback-vividh-bharati', name: 'Vividh Bharati', state: 'National', language: 'Hindi', tags: 'air,music,national', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-live-news', name: 'AIR Live News 24x7', state: 'National', language: 'Hindi,English', tags: 'air,news,national', homepage: 'https://newsonair.gov.in', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-fm-gold-delhi', name: 'AIR FM Gold Delhi', state: 'Delhi', language: 'Hindi', tags: 'air,music', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-fm-rainbow-delhi', name: 'AIR FM Rainbow Delhi', state: 'Delhi', language: 'Hindi', tags: 'air,music', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-raagam', name: 'Raagam', state: 'National', language: 'Hindi,Tamil,Telugu,Malayalam', tags: 'air,music,classical', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-fm-gold-chennai', name: 'AIR FM Gold Chennai', state: 'Tamil Nadu', language: 'Tamil', tags: 'air,music,regional', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-marathi-mumbai', name: 'Akashvani Marathi Mumbai Asmita', state: 'Maharashtra', language: 'Marathi,Hindi', tags: 'air,regional', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+    { stationuuid: 'fallback-kolkata', name: 'Akashvani Kolkata', state: 'West Bengal', language: 'Bengali,Hindi', tags: 'air,regional', homepage: 'https://akashvani.gov.in/radio/live.php', isOfficialLinkOnly: true },
+  ];
+
+  return {
+    fetchIndiaStations, fetchTrending, registerClick, categorize, languagesFor,
+    LANGUAGE_LIST, FALLBACK_STATIONS,
+  };
+})();
+
+/* ==========================================================================
+   4. PLAYER — singleton <audio> engine: playback, auto-reconnect, HLS,
+   Media Session (lock-screen controls), sleep timer, next/prev queue.
+   ========================================================================== */
+const Player = (() => {
+  const audio = document.getElementById('audio-player');
+  audio.preload = 'none';
+  // Deliberately NOT setting audio.crossOrigin: most Indian icecast/AIR
+  // streams don't send CORS headers, and crossOrigin would break playback
+  // outright. Plain playback never needs CORS — only reading raw samples
+  // (e.g. a Web Audio analyser) would, which is why the equalizer is a CSS
+  // animation rather than an audio-reactive visualisation (see styles).
+
+  let hls = null; // active Hls.js instance, if any
+
+  const state = {
+    station: null,
+    status: 'idle', // idle | loading | playing | paused | reconnecting | error
+    volume: Storage.getVolume(),
+    muted: false,
+    retryCount: 0,
+    queue: [],
+    queueIndex: -1,
+    sleepEndsAt: null,
+  };
+
+  const listeners = new Set();
+  function emit() { listeners.forEach((fn) => fn({ ...state })); }
+  function subscribe(fn) { listeners.add(fn); fn({ ...state }); return () => listeners.delete(fn); }
+  function setStatus(s) { state.status = s; emit(); }
+
+  const MAX_RETRIES = 5;
+  let retryTimer = null;
+
+  function teardownHls() {
+    if (hls) { try { hls.destroy(); } catch (e) { /* noop */ } hls = null; }
+  }
+
+  function isHlsUrl(url) { return /\.m3u8(\?|$)/i.test(url || ''); }
+
+  function attachSource(url) {
+    teardownHls();
+    const nativeHls = audio.canPlayType('application/vnd.apple.mpegurl');
+    if (isHlsUrl(url) && !nativeHls && window.Hls && window.Hls.isSupported()) {
+      // Chrome/Firefox/Android can't decode HLS natively — hls.js remuxes it
+      // into something MSE can play. Safari/iOS gets native HLS for free.
+      hls = new window.Hls({ maxBufferLength: 30, backBufferLength: 30 });
+      hls.loadSource(url);
+      hls.attachMedia(audio);
+      hls.on(window.Hls.Events.ERROR, (_evt, data) => {
+        if (data && data.fatal) attemptReconnect();
+      });
+    } else {
+      audio.src = url;
+    }
+  }
+
+  async function play(station, queue) {
+    if (!station || station.isOfficialLinkOnly) return; // UI opens the official link instead
+    if (queue) {
+      state.queue = queue;
+      state.queueIndex = queue.findIndex((s) => s.stationuuid === station.stationuuid);
+    }
+    state.station = station;
+    state.retryCount = 0;
+    clearTimeout(retryTimer);
+    setStatus('loading');
+
+    attachSource(station.url_resolved || station.url);
+    audio.volume = state.muted ? 0 : state.volume;
+
+    try {
+      await audio.play();
+    } catch (err) {
+      // Autoplay can be rejected until the user has interacted with the page
+      // once — the error/waiting listeners below cover real stream failures.
+    }
+
+    Storage.addRecent(station);
+    RadioAPI.registerClick(station.stationuuid);
+    updateMediaSession(station);
+  }
+
+  function pause() { audio.pause(); setStatus('paused'); }
+  function resume() {
+    if (!state.station) return;
+    audio.play().then(() => setStatus('playing')).catch(() => {});
+  }
+  function togglePlayPause() {
+    if (state.status === 'playing' || state.status === 'loading' || state.status === 'reconnecting') pause();
+    else resume();
+  }
+  function stop() {
+    clearTimeout(retryTimer);
+    teardownHls();
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+    state.station = null;
+    state.retryCount = 0;
+    setStatus('idle');
+    clearSleepTimer();
+  }
+
+  function attemptReconnect() {
+    if (!state.station) return;
+    if (state.retryCount >= MAX_RETRIES) { setStatus('error'); return; }
+    state.retryCount += 1;
+    setStatus('reconnecting');
+    const delay = Math.min(1000 * 2 ** state.retryCount, 15000);
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(() => {
+      if (!state.station) return;
+      attachSource(state.station.url_resolved || state.station.url);
+      audio.play().catch(() => {});
+    }, delay);
+  }
+
+  function retryNow() {
+    state.retryCount = 0;
+    attemptReconnect();
+  }
+
+  function next() { step(1); }
+  function prev() { step(-1); }
+  function step(dir) {
+    if (!state.queue.length || state.queueIndex < 0) return;
+    const i = (state.queueIndex + dir + state.queue.length) % state.queue.length;
+    const s = state.queue[i];
+    if (s) play(s, state.queue);
+  }
+
+  function setVolume(v) {
+    state.volume = Utils.clamp(v, 0, 1);
+    state.muted = false;
+    audio.volume = state.volume;
+    Storage.setVolume(state.volume);
+    emit();
+  }
+  function toggleMute() {
+    state.muted = !state.muted;
+    audio.volume = state.muted ? 0 : state.volume;
+    emit();
+  }
+
+  // ---- Sleep timer ----
+  let sleepInterval = null;
+  function setSleepTimer(minutes) {
+    clearSleepTimer();
+    if (!minutes) { emit(); return; }
+    state.sleepEndsAt = Date.now() + minutes * 60000;
+    sleepInterval = setInterval(() => {
+      if (!state.sleepEndsAt) return;
+      if (Date.now() >= state.sleepEndsAt) stop();
+      else emit();
+    }, 1000);
+    emit();
+  }
+  function clearSleepTimer() {
+    clearInterval(sleepInterval);
+    sleepInterval = null;
+    state.sleepEndsAt = null;
+  }
+
+  // ---- Media Session (lock-screen controls + artwork) ----
+  function updateMediaSession(station) {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: station.name || 'Live Radio',
+        artist: [station.state, 'India'].filter(Boolean).join(' \u00b7 '),
+        album: '\u0924\u0930\u0902\u0917 \u00b7 Live Indian Radio',
+        artwork: station.favicon ? [
+          { src: station.favicon, sizes: '96x96', type: 'image/png' },
+          { src: station.favicon, sizes: '512x512', type: 'image/png' },
+        ] : [],
+      });
+      navigator.mediaSession.setActionHandler('play', resume);
+      navigator.mediaSession.setActionHandler('pause', pause);
+      navigator.mediaSession.setActionHandler('previoustrack', prev);
+      navigator.mediaSession.setActionHandler('nexttrack', next);
+      navigator.mediaSession.setActionHandler('stop', stop);
+    } catch (e) { /* action unsupported on this platform — ignore */ }
+  }
+
+  // ---- Native <audio> events drive the status state machine ----
+  audio.addEventListener('waiting', () => { if (state.status === 'playing') setStatus('loading'); });
+  audio.addEventListener('playing', () => {
+    state.retryCount = 0;
+    setStatus('playing');
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+  });
+  audio.addEventListener('pause', () => {
+    if (!['reconnecting', 'loading', 'idle'].includes(state.status)) setStatus('paused');
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+  });
+  audio.addEventListener('error', attemptReconnect);
+  audio.addEventListener('stalled', attemptReconnect);
+
+  return {
+    subscribe, play, pause, resume, togglePlayPause, stop, next, prev, retryNow,
+    setVolume, toggleMute, setSleepTimer, clearSleepTimer,
+    getState: () => ({ ...state }),
+  };
+})();
+
+/* ==========================================================================
+   5. STORE — app-level UI state (distinct from Player's playback state)
+   ========================================================================== */
+const Store = (() => {
+  const state = {
+    allStations: [],
+    dataSource: 'loading', // loading | api | cache | fallback
+    lastFetchedAt: null,
+    activeCategory: 'all',
+    activeState: '',
+    layout: Storage.getLayout(),
+    searchQuery: '',
+    isOffline: !navigator.onLine,
+    nowPlayingOpen: false,
+  };
+  const listeners = new Set();
+  function emit() { listeners.forEach((fn) => fn({ ...state })); }
+  function subscribe(fn) { listeners.add(fn); fn({ ...state }); return () => listeners.delete(fn); }
+  function patch(partial) { Object.assign(state, partial); emit(); }
+  function get() { return { ...state }; }
+  return { subscribe, patch, get };
+})();
+
+/* ==========================================================================
+   6. DERIVED — pure filtering helpers over the cached station list
+   ========================================================================== */
+const Derived = (() => {
+  function byCategory(stations, category) {
+    if (category === 'all') return stations;
+    if (RadioAPI.LANGUAGE_LIST.includes(category)) {
+      return stations.filter((s) => RadioAPI.languagesFor(s).includes(category));
+    }
+    return stations.filter((s) => RadioAPI.categorize(s).has(category));
+  }
+
+  function byState(stations, stateName) {
+    if (!stateName) return stations;
+    return stations.filter((s) => (s.state || '').toLowerCase() === stateName.toLowerCase());
+  }
+
+  function search(stations, query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return stations;
+    return stations.filter((s) =>
+      (s.name || '').toLowerCase().includes(q)
+      || (s.state || '').toLowerCase().includes(q)
+      || (s.language || '').toLowerCase().includes(q)
+      || (s.tags || '').toLowerCase().includes(q));
+  }
+
+  function statesIn(stations) { return Utils.uniqueSorted(stations.map((s) => s.state)); }
+
+  function topByPopularity(stations, limit = 15) {
+    return [...stations].sort((a, b) => (b.clickcount || b.votes || 0) - (a.clickcount || a.votes || 0)).slice(0, limit);
+  }
+
+  return { byCategory, byState, search, statesIn, topByPopularity };
+})();
+
+/* ==========================================================================
+   7. ICONS — small inline SVGs (stroke-based, 24x24), zero asset deps
+   ========================================================================== */
+const Icons = {
+  play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>',
+  heartFilled: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>',
+  chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  volume: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 9 8 9 12 5 12 19 8 15 4 15 4 9"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7"/></svg>',
+  volumeMute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 9 8 9 12 5 12 19 8 15 4 15 4 9"/><line x1="16.5" y1="9" x2="21.5" y2="14"/><line x1="21.5" y1="9" x2="16.5" y2="14"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>',
+  externalLink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></svg>',
+  wifiOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 3-2.1"/><path d="M12.5 8.5c3 0 5.5 1 7.5 2.7"/><path d="M16.8 5.5A15 15 0 0 0 12 4.5c-1.6 0-3.2.25-4.6.7"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a8.5 8.5 0 1 0 1.9-9.1L1 10"/></svg>',
+  skipNext: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="2.5" height="16"/></svg>',
+  skipPrev: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 4 9 12 19 20 19 4"/><rect x="4.5" y="4" width="2.5" height="16"/></svg>',
+  tower: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M7 8a7 7 0 0 1 10 0"/><path d="M4.5 5.5a10.5 10.5 0 0 1 15 0"/><path d="M9 21h6"/></svg>',
+};
+
+/* ==========================================================================
+   8. CONSTANTS
+   ========================================================================== */
+const CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'air', label: 'All India Radio' },
+  { id: 'regional', label: 'Regional' },
+  { id: 'music', label: 'Music & FM' },
+  { id: 'news', label: 'News' },
+  { id: 'devotional', label: 'Devotional' },
+];
+const FILTER_CHIPS = [...CATEGORIES, ...RadioAPI.LANGUAGE_LIST.map((l) => ({ id: l, label: l }))];
+const SLEEP_OPTIONS = [15, 30, 45, 60];
+
+/* ==========================================================================
+   9. TEMPLATES — pure functions returning HTML strings
+   ========================================================================== */
+const Templates = (() => {
+  function stationCard(station, layout, opts = {}) {
+    const uuid = Utils.escapeHTML(station.stationuuid);
+    const fav = Storage.isFavorite(station.stationuuid);
+    const initials = Utils.initialsFor(station.name);
+    const color = Utils.colorFor(station.name || station.stationuuid);
+    const langs = RadioAPI.languagesFor(station).slice(0, 2).join(', ');
+    const meta = Utils.escapeHTML([station.state, langs].filter(Boolean).join(' \u00b7 '));
+    const bitrateBadge = station.bitrate ? `<span class="badge badge-bitrate">${station.bitrate}kbps</span>` : '';
+    const officialBadge = station.isOfficialLinkOnly ? '<span class="badge badge-official">Official player \u2197</span>' : '';
+    const listClass = layout === 'list' ? ' station-card--list' : (opts.compact ? ' station-card--compact' : '');
+    const favicon = station.favicon
+      ? `<img class="card-art-img" src="${Utils.escapeHTML(station.favicon)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      : '';
+
+    return `
+      <button class="station-card${listClass}" data-uuid="${uuid}" type="button">
+        <span class="card-art" style="--avatar-color:${color}">
+          <span class="card-art-fallback">${Utils.escapeHTML(initials)}</span>
+          ${favicon}
+          ${!station.isOfficialLinkOnly ? '<span class="live-dot" aria-hidden="true"></span>' : ''}
+        </span>
+        <span class="card-body">
+          <span class="card-title">${Utils.escapeHTML(station.name || 'Unnamed station')}</span>
+          <span class="card-meta">${meta || '\u00a0'}</span>
+          <span class="card-badges">${bitrateBadge}${officialBadge}</span>
+        </span>
+        <span class="card-fav${fav ? ' is-fav' : ''}" data-fav-uuid="${uuid}" role="button" aria-label="Toggle favorite">${fav ? Icons.heartFilled : Icons.heart}</span>
+      </button>`;
+  }
+
+  function skeletonCard(layout) {
+    const listClass = layout === 'list' ? ' station-card--list' : '';
+    return `<div class="station-card skeleton-card${listClass}" aria-hidden="true">
+      <span class="card-art skeleton-shimmer"></span>
+      <span class="card-body">
+        <span class="skeleton-line skeleton-shimmer" style="width:72%"></span>
+        <span class="skeleton-line skeleton-shimmer" style="width:44%"></span>
+      </span>
+    </div>`;
+  }
+
+  function skeletons(count, layout) {
+    return Array.from({ length: count }).map(() => skeletonCard(layout)).join('');
+  }
+
+  function emptyState(icon, title, hint) {
+    return `<div class="empty-state">
+      <span class="empty-state-icon">${icon}</span>
+      <p class="empty-state-title">${Utils.escapeHTML(title)}</p>
+      <p class="empty-state-hint">${Utils.escapeHTML(hint || '')}</p>
+    </div>`;
+  }
+
+  function chip(id, label, active) {
+    return `<button class="chip${active ? ' chip--active' : ''}" data-chip="${Utils.escapeHTML(id)}" type="button">${Utils.escapeHTML(label)}</button>`;
+  }
+
+  return { stationCard, skeletonCard, skeletons, emptyState, chip };
+})();
+
+/* ==========================================================================
+   10. UI — DOM wiring, rendering, and all event listeners
+   ========================================================================== */
+const UI = (() => {
+  const el = {};
+  // Per-view "last rendered list" cache. Cards only store a stationuuid in the
+  // DOM to stay lightweight; this is how a tap resolves back to the full
+  // station object *and* the right next/prev queue for that view.
+  const lastLists = { home: [], search: [], favorites: [], trending: [], recents: [] };
+
+  function q(id) { return document.getElementById(id); }
+
+  function cacheRefs() {
+    el.offlineBanner = q('offline-banner');
+    el.installApp = q('install-app');
+    el.themeToggle = q('theme-toggle');
+    el.layoutToggle = q('layout-toggle');
+    el.searchInput = q('search-input');
+    el.searchClear = q('search-clear');
+    el.homeGrid = q('home-grid');
+    el.searchGrid = q('search-grid');
+    el.favoritesGrid = q('favorites-grid');
+    el.recentsRail = q('recents-rail');
+    el.recentsSection = q('recents-section');
+    el.trendingRail = q('trending-rail');
+    el.categoryChips = q('category-chips');
+    el.stateSelect = q('state-select');
+    el.views = document.querySelectorAll('.view');
+    el.navButtons = document.querySelectorAll('.nav-btn[data-view]');
+    el.navNowPlaying = q('nav-now-playing');
+    el.miniPlayer = q('mini-player');
+    el.miniArt = q('mini-art');
+    el.miniTitle = q('mini-title');
+    el.miniStatus = q('mini-status');
+    el.miniPlayPause = q('mini-play-pause');
+    el.miniFav = q('mini-fav');
+    el.nowPlaying = q('now-playing');
+    el.npClose = q('np-close');
+    el.npArt = q('np-art');
+    el.npTitle = q('np-title');
+    el.npMeta = q('np-meta');
+    el.npStatus = q('np-status');
+    el.npDial = q('np-dial');
+    el.npEq = q('np-equalizer');
+    el.npPlayPause = q('np-play-pause');
+    el.npNext = q('np-next');
+    el.npPrev = q('np-prev');
+    el.npFav = q('np-fav');
+    el.npShare = q('np-share');
+    el.npSleepBtn = q('np-sleep-btn');
+    el.npSleepLabel = q('np-sleep-label');
+    el.npVolume = q('np-volume');
+    el.npMute = q('np-mute');
+    el.npRetry = q('np-retry');
+    el.npOfficialLink = q('np-official-link');
+    el.sleepSheet = q('sleep-sheet');
+    el.sleepBackdrop = q('sleep-backdrop');
+    el.toast = q('toast');
+  }
+
+  function showToast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.toast.classList.remove('show'), 2400);
+  }
+
+  function showView(view) {
+    el.views.forEach((v) => v.classList.toggle('active', v.dataset.view === view));
+    el.navButtons.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
+    // Always render fresh on switch-in, rather than relying solely on the Store
+    // subscription — a view can go stale (e.g. a favorite added while looking at
+    // Now Playing) without any Store.patch happening in between.
+    if (view === 'home') renderHome();
+    if (view === 'search') { renderSearch(); setTimeout(() => el.searchInput.focus(), 250); }
+    if (view === 'favorites') renderFavorites();
+  }
+
+  function renderCategoryChips(activeCategory) {
+    el.categoryChips.innerHTML = FILTER_CHIPS.map((c) => Templates.chip(c.id, c.label, c.id === activeCategory)).join('');
+  }
+
+  function renderStateSelect(stations, activeState) {
+    const states = Derived.statesIn(stations);
+    el.stateSelect.innerHTML = '<option value="">All states</option>'
+      + states.map((s) => `<option value="${Utils.escapeHTML(s)}">${Utils.escapeHTML(s)}</option>`).join('');
+    el.stateSelect.value = activeState || '';
+  }
+
+  function renderTrending(stations) {
+    const top = Derived.topByPopularity(stations, 14);
+    lastLists.trending = top;
+    el.trendingRail.innerHTML = top.map((s) => Templates.stationCard(s, 'grid', { compact: true })).join('');
+  }
+
+  function renderRecents() {
+    const recents = Storage.getRecents();
+    lastLists.recents = recents;
+    el.recentsSection.hidden = recents.length === 0;
+    el.recentsRail.innerHTML = recents.map((s) => Templates.stationCard(s, 'grid', { compact: true })).join('');
+  }
+
+  function renderHome() {
+    const { allStations, activeCategory, activeState, layout } = Store.get();
+    renderCategoryChips(activeCategory);
+    renderStateSelect(allStations, activeState);
+    renderTrending(allStations);
+    renderRecents();
+
+    let list = Derived.byCategory(allStations, activeCategory);
+    list = Derived.byState(list, activeState);
+    lastLists.home = list;
+
+    el.homeGrid.className = 'stations-grid' + (layout === 'list' ? ' stations-grid--list' : '');
+    if (!allStations.length) { el.homeGrid.innerHTML = Templates.skeletons(8, layout); return; }
+    if (!list.length) { el.homeGrid.innerHTML = Templates.emptyState(Icons.search, 'No stations here yet', 'Try a different category or state.'); return; }
+    el.homeGrid.innerHTML = list.map((s) => Templates.stationCard(s, layout)).join('');
+  }
+
+  function renderSearch() {
+    const { allStations, searchQuery, layout } = Store.get();
+    el.searchGrid.className = 'stations-grid' + (layout === 'list' ? ' stations-grid--list' : '');
+    if (!searchQuery.trim()) {
+      lastLists.search = [];
+      el.searchGrid.innerHTML = Templates.emptyState(Icons.search, 'Search live Indian radio', 'Try a station name, city, or language.');
+      return;
+    }
+    const results = Derived.search(allStations, searchQuery);
+    lastLists.search = results;
+    if (!results.length) {
+      el.searchGrid.innerHTML = Templates.emptyState(Icons.search, `No matches for "${Utils.escapeHTML(searchQuery)}"`, 'Check the spelling, or try a broader term.');
+      return;
+    }
+    el.searchGrid.innerHTML = results.map((s) => Templates.stationCard(s, layout)).join('');
+  }
+
+  function renderFavorites() {
+    const { layout } = Store.get();
+    const favs = Storage.getFavorites();
+    lastLists.favorites = favs;
+    el.favoritesGrid.className = 'stations-grid' + (layout === 'list' ? ' stations-grid--list' : '');
+    if (!favs.length) {
+      el.favoritesGrid.innerHTML = Templates.emptyState(Icons.heart, 'No favorites yet', 'Tap the heart on any station to save it here.');
+      return;
+    }
+    el.favoritesGrid.innerHTML = favs.map((s) => Templates.stationCard(s, layout)).join('');
+  }
+
+  function refreshFavoriteHearts() {
+    document.querySelectorAll('[data-fav-uuid]').forEach((btn) => {
+      const isFav = Storage.isFavorite(btn.dataset.favUuid);
+      btn.classList.toggle('is-fav', isFav);
+      btn.innerHTML = isFav ? Icons.heartFilled : Icons.heart;
+    });
+    const st = Player.getState().station;
+    if (st && el.npFav) {
+      const isFav = Storage.isFavorite(st.stationuuid);
+      el.npFav.classList.toggle('is-fav', isFav);
+      el.npFav.innerHTML = isFav ? Icons.heartFilled : Icons.heart;
+    }
+  }
+
+  function findInLists(uuid) {
+    for (const key of ['home', 'search', 'favorites', 'trending', 'recents']) {
+      const list = lastLists[key] || [];
+      const found = list.find((s) => s.stationuuid === uuid);
+      if (found) return { station: found, queue: list };
+    }
+    return null;
+  }
+
+  function handleStationActivate(uuid) {
+    const found = findInLists(uuid);
+    if (!found) return;
+    if (found.station.isOfficialLinkOnly) {
+      window.open(found.station.homepage, '_blank', 'noopener');
+      showToast('Opening the official AIR player\u2026');
+      return;
+    }
+    Player.play(found.station, found.queue);
+    openNowPlaying();
+  }
+
+  function handleFavoriteToggle(uuid) {
+    const found = findInLists(uuid) || { station: Storage.getFavorites().find((s) => s.stationuuid === uuid) };
+    if (!found || !found.station) return;
+    const nowFav = Storage.toggleFavorite(found.station);
+    showToast(nowFav ? 'Added to favorites' : 'Removed from favorites');
+    refreshFavoriteHearts();
+    const favView = document.querySelector('.view[data-view="favorites"]');
+    if (favView && favView.classList.contains('active')) renderFavorites();
+  }
+
+  function openNowPlaying() {
+    Store.patch({ nowPlayingOpen: true });
+    el.nowPlaying.classList.add('open');
+    document.body.classList.add('np-open');
+    history.pushState({ tarangNowPlaying: true }, '');
+  }
+  function closeNowPlaying(skipHistory) {
+    Store.patch({ nowPlayingOpen: false });
+    el.nowPlaying.classList.remove('open');
+    document.body.classList.remove('np-open');
+    if (!skipHistory && history.state && history.state.tarangNowPlaying) history.back();
+  }
+
+  const STATUS_LABEL = {
+    idle: '', loading: 'Tuning in\u2026', playing: 'Live', paused: 'Paused',
+    reconnecting: 'Reconnecting\u2026', error: 'Temporarily unavailable',
+  };
+
+  function renderPlayerUI(pState) {
+    const station = pState.station;
+    const hasStation = !!station;
+    el.miniPlayer.classList.toggle('visible', hasStation);
+    el.navNowPlaying.classList.toggle('disabled', !hasStation);
+    document.body.classList.toggle('has-mini-player', hasStation);
+    if (!hasStation) return;
+
+    const color = Utils.colorFor(station.name || station.stationuuid);
+    const initials = Utils.initialsFor(station.name);
+    const artHTML = station.favicon
+      ? `<img src="${Utils.escapeHTML(station.favicon)}" alt="" onerror="this.style.display='none'">`
+      : '';
+    const isBusy = pState.status === 'playing' || pState.status === 'loading' || pState.status === 'reconnecting';
+    const isFav = Storage.isFavorite(station.stationuuid);
+
+    el.miniArt.style.setProperty('--avatar-color', color);
+    el.miniArt.innerHTML = `<span class="card-art-fallback">${Utils.escapeHTML(initials)}</span>${artHTML}`;
+    el.miniTitle.textContent = station.name || 'Live Radio';
+    el.miniStatus.textContent = STATUS_LABEL[pState.status] || '';
+    el.miniStatus.className = 'mini-status status-' + pState.status;
+    el.miniPlayPause.innerHTML = isBusy ? Icons.pause : Icons.play;
+    el.miniFav.classList.toggle('is-fav', isFav);
+    el.miniFav.innerHTML = isFav ? Icons.heartFilled : Icons.heart;
+
+    el.npArt.style.setProperty('--avatar-color', color);
+    el.npArt.innerHTML = `<span class="card-art-fallback">${Utils.escapeHTML(initials)}</span>${artHTML}`;
+    el.npTitle.textContent = station.name || 'Live Radio';
+    el.npMeta.textContent = [station.state, RadioAPI.languagesFor(station).join(', '), station.bitrate ? station.bitrate + 'kbps' : ''].filter(Boolean).join(' \u00b7 ');
+    el.npPlayPause.innerHTML = isBusy ? Icons.pause : Icons.play;
+    el.npFav.classList.toggle('is-fav', isFav);
+    el.npFav.innerHTML = isFav ? Icons.heartFilled : Icons.heart;
+    el.npEq.classList.toggle('playing', pState.status === 'playing');
+    el.npDial.hidden = (pState.status !== 'loading' && pState.status !== 'reconnecting');
+    el.npEq.hidden = (pState.status === 'loading' || pState.status === 'reconnecting' || pState.status === 'error');
+
+    el.npStatus.textContent = STATUS_LABEL[pState.status] || '';
+    el.npStatus.className = 'np-status status-' + pState.status;
+    el.npRetry.hidden = pState.status !== 'error';
+    el.npOfficialLink.hidden = !station.homepage || pState.status !== 'error';
+    if (station.homepage) el.npOfficialLink.href = station.homepage;
+
+    el.npVolume.value = pState.muted ? 0 : pState.volume;
+    el.npMute.innerHTML = (pState.muted || pState.volume === 0) ? Icons.volumeMute : Icons.volume;
+
+    if (pState.sleepEndsAt) {
+      el.npSleepLabel.textContent = Utils.formatClock(Math.max(0, pState.sleepEndsAt - Date.now()));
+      el.npSleepBtn.classList.add('active');
+    } else {
+      el.npSleepLabel.textContent = 'Sleep';
+      el.npSleepBtn.classList.remove('active');
+    }
+  }
+
+  function openSleepSheet() { el.sleepSheet.classList.add('open'); el.sleepBackdrop.classList.add('open'); }
+  function closeSleepSheet() { el.sleepSheet.classList.remove('open'); el.sleepBackdrop.classList.remove('open'); }
+
+  function renderOffline(isOffline, hasCache) {
+    el.offlineBanner.classList.toggle('show', isOffline);
+    const label = el.offlineBanner.querySelector('span');
+    if (label) {
+      label.textContent = hasCache
+        ? "You're offline \u2014 showing your last saved stations"
+        : "You're offline and no stations are cached yet";
+    }
+  }
+
+  return {
+    cacheRefs, showToast, showView, renderHome, renderSearch, renderFavorites,
+    refreshFavoriteHearts, handleStationActivate, handleFavoriteToggle,
+    openNowPlaying, closeNowPlaying, renderPlayerUI, openSleepSheet, closeSleepSheet,
+    renderOffline,
+    get el() { return el; },
+    get lastLists() { return lastLists; },
+  };
+})();
+
+/* ==========================================================================
+   11. DATA LOADER — cache-first boot, background refresh, honest fallback
+   ========================================================================== */
+const DataLoader = (() => {
+  const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+  async function boot() {
+    const cached = Storage.getStationsCache();
+    if (cached && Array.isArray(cached.stations) && cached.stations.length) {
+      Store.patch({ allStations: cached.stations, dataSource: cached.source || 'cache', lastFetchedAt: cached.fetchedAt });
+      if (Date.now() - cached.fetchedAt > CACHE_MAX_AGE_MS) refresh(false);
+    } else {
+      await refresh(true);
+    }
+  }
+
+  async function refresh(isInitialLoad) {
+    const data = await RadioAPI.fetchIndiaStations(3000);
+    if (data && Array.isArray(data) && data.length) {
+      Storage.setStationsCache(data, 'api');
+      Store.patch({ allStations: data, dataSource: 'api', lastFetchedAt: Date.now() });
+    } else if (isInitialLoad) {
+      Store.patch({ allStations: RadioAPI.FALLBACK_STATIONS, dataSource: 'fallback', lastFetchedAt: Date.now() });
+    }
+  }
+
+  return { boot, refresh };
+})();
+
+/* ==========================================================================
+   12. PWA — install prompt and service worker lifecycle
+   ========================================================================== */
+const PWA = (() => {
+  let deferredPrompt = null;
+  const INSTALL_DONE_KEY = 'tarang_pwa_installed';
+
+  function hasInstalledFlag() {
+    try { return localStorage.getItem(INSTALL_DONE_KEY) === '1'; } catch (_) { return false; }
+  }
+
+  function markInstalled() {
+    try { localStorage.setItem(INSTALL_DONE_KEY, '1'); } catch (_) {}
+  }
+
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      await navigator.serviceWorker.register('./sw.js');
+    } catch (_) {}
+  }
+
+  function bindInstallButton(btn) {
+    if (!btn) return;
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    if (isStandalone) markInstalled();
+    if (isStandalone || hasInstalledFlag()) btn.hidden = true;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      if (hasInstalledFlag() || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+        btn.hidden = true;
+        return;
+      }
+      e.preventDefault();
+      deferredPrompt = e;
+      btn.hidden = false;
+    });
+
+    btn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') markInstalled();
+      if (outcome !== 'accepted') UI.showToast('Install cancelled');
+      deferredPrompt = null;
+      btn.hidden = true;
+    });
+
+    const standaloneMedia = window.matchMedia('(display-mode: standalone)');
+    const onStandaloneChange = (event) => {
+      if (!event.matches) return;
+      markInstalled();
+      deferredPrompt = null;
+      btn.hidden = true;
+    };
+    if (typeof standaloneMedia.addEventListener === 'function') {
+      standaloneMedia.addEventListener('change', onStandaloneChange);
+    } else if (typeof standaloneMedia.addListener === 'function') {
+      standaloneMedia.addListener(onStandaloneChange);
+    }
+
+    window.addEventListener('appinstalled', () => {
+      markInstalled();
+      deferredPrompt = null;
+      btn.hidden = true;
+      UI.showToast('App installed');
+    });
+  }
+
+  return { registerServiceWorker, bindInstallButton };
+})();
+
+/* ==========================================================================
+   13. APP — wires everything together
+   ========================================================================== */
+const App = (() => {
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    if (UI.el.themeToggle) UI.el.themeToggle.innerHTML = theme === 'dark' ? Icons.sun : Icons.moon;
+  }
+
+  function shareCurrentStation() {
+    const st = Player.getState().station;
+    if (!st) return;
+    const url = st.homepage || st.url_resolved || st.url || location.href;
+    const text = `Listening to ${st.name} on \u0924\u0930\u0902\u0917 \u2014 Live Indian Radio`;
+    if (navigator.share) {
+      navigator.share({ title: st.name, text, url }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(`${text}\n${url}`).then(() => UI.showToast('Link copied'));
+    } else {
+      UI.showToast(url);
+    }
+  }
+
+  // ---- Minimal swipe helpers (no external gesture library) ----
+  function bindSwipeUp(target, onSwipeUp) {
+    let startY = null;
+    target.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+    target.addEventListener('touchend', (e) => {
+      if (startY === null) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      startY = null;
+      if (dy < -45) onSwipeUp();
+    }, { passive: true });
+  }
+  function bindSwipeDown(target, onSwipeDown) {
+    let startY = null;
+    const handle = target.querySelector('.np-drag-handle') || target;
+    handle.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+    handle.addEventListener('touchend', (e) => {
+      if (startY === null) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      startY = null;
+      if (dy > 60) onSwipeDown();
+    }, { passive: true });
+  }
+
+  function bindEvents() {
+    const el = UI.el;
+
+    el.navButtons.forEach((btn) => btn.addEventListener('click', () => UI.showView(btn.dataset.view)));
+    el.navNowPlaying.addEventListener('click', () => { if (Player.getState().station) UI.openNowPlaying(); });
+
+    el.themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      Storage.setTheme(next);
+      applyTheme(next);
+    });
+
+    el.layoutToggle.addEventListener('click', () => {
+      const next = Store.get().layout === 'grid' ? 'list' : 'grid';
+      Storage.setLayout(next);
+      el.layoutToggle.innerHTML = next === 'grid' ? Icons.list : Icons.grid;
+      Store.patch({ layout: next });
+    });
+
+    const debouncedSearch = Utils.debounce((val) => Store.patch({ searchQuery: val }), 280);
+    el.searchInput.addEventListener('input', (e) => {
+      el.searchClear.hidden = !e.target.value;
+      debouncedSearch(e.target.value);
+    });
+    el.searchClear.addEventListener('click', () => {
+      el.searchInput.value = '';
+      el.searchClear.hidden = true;
+      Store.patch({ searchQuery: '' });
+      el.searchInput.focus();
+    });
+
+    el.categoryChips.addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-chip]');
+      if (chip) Store.patch({ activeCategory: chip.dataset.chip });
+    });
+
+    el.stateSelect.addEventListener('change', () => Store.patch({ activeState: el.stateSelect.value }));
+
+    [el.homeGrid, el.searchGrid, el.favoritesGrid, el.trendingRail, el.recentsRail].forEach((container) => {
+      container.addEventListener('click', (e) => {
+        const favBtn = e.target.closest('[data-fav-uuid]');
+        if (favBtn) { UI.handleFavoriteToggle(favBtn.dataset.favUuid); return; }
+        const card = e.target.closest('.station-card:not(.skeleton-card)');
+        if (card) UI.handleStationActivate(card.dataset.uuid);
+      });
+    });
+
+    el.miniPlayer.addEventListener('click', (e) => {
+      if (e.target.closest('.mini-control')) return;
+      UI.openNowPlaying();
+    });
+    el.miniPlayPause.addEventListener('click', (e) => { e.stopPropagation(); Player.togglePlayPause(); });
+    el.miniFav.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const st = Player.getState().station;
+      if (st) UI.handleFavoriteToggle(st.stationuuid);
+    });
+    bindSwipeUp(el.miniPlayer, () => UI.openNowPlaying());
+
+    el.npClose.addEventListener('click', () => UI.closeNowPlaying());
+    bindSwipeDown(el.nowPlaying, () => UI.closeNowPlaying());
+    el.npPlayPause.addEventListener('click', () => Player.togglePlayPause());
+    el.npNext.addEventListener('click', () => Player.next());
+    el.npPrev.addEventListener('click', () => Player.prev());
+    el.npFav.addEventListener('click', () => {
+      const st = Player.getState().station;
+      if (st) UI.handleFavoriteToggle(st.stationuuid);
+    });
+    el.npRetry.addEventListener('click', () => Player.retryNow());
+    el.npVolume.addEventListener('input', (e) => Player.setVolume(parseFloat(e.target.value)));
+    el.npMute.addEventListener('click', () => Player.toggleMute());
+    el.npShare.addEventListener('click', shareCurrentStation);
+
+    el.npSleepBtn.addEventListener('click', UI.openSleepSheet);
+    el.sleepBackdrop.addEventListener('click', UI.closeSleepSheet);
+    document.querySelectorAll('[data-sleep]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mins = parseInt(btn.dataset.sleep, 10);
+        Player.setSleepTimer(mins > 0 ? mins : null);
+        UI.showToast(mins > 0 ? `Sleep timer set for ${mins} min` : 'Sleep timer cleared');
+        UI.closeSleepSheet();
+      });
+    });
+
+    Player.subscribe((pState) => UI.renderPlayerUI(pState));
+
+    Store.subscribe((sState) => {
+      UI.renderOffline(sState.isOffline, sState.allStations.length > 0);
+      const activeView = document.querySelector('.view.active');
+      const activeName = activeView ? activeView.dataset.view : 'home';
+      if (activeName === 'home') UI.renderHome();
+      if (activeName === 'search') UI.renderSearch();
+      if (activeName === 'favorites') UI.renderFavorites();
+      UI.refreshFavoriteHearts();
+    });
+
+    window.addEventListener('online', () => { Store.patch({ isOffline: false }); DataLoader.refresh(false); });
+    window.addEventListener('offline', () => Store.patch({ isOffline: true }));
+
+    window.addEventListener('popstate', () => {
+      if (Store.get().nowPlayingOpen) UI.closeNowPlaying(true);
+    });
+  }
+
+  async function init() {
+    applyTheme(Storage.getTheme());
+    UI.cacheRefs();
+    UI.el.layoutToggle.innerHTML = Store.get().layout === 'grid' ? Icons.list : Icons.grid;
+    PWA.bindInstallButton(UI.el.installApp);
+    bindEvents();
+    UI.showView('home');
+    UI.renderHome();
+    UI.renderFavorites();
+    await DataLoader.boot();
+    PWA.registerServiceWorker();
+
+    // Best-effort live "currently trending" signal to refine the popularity-based
+    // rail already showing from the cached dataset — not required for correctness.
+    RadioAPI.fetchTrending(14).then((data) => {
+      const homeActive = document.querySelector('.view[data-view="home"]');
+      if (data && Array.isArray(data) && data.length && homeActive && homeActive.classList.contains('active')) {
+        UI.lastLists.trending = data;
+        UI.el.trendingRail.innerHTML = data.map((s) => Templates.stationCard(s, 'grid', { compact: true })).join('');
+      }
+    });
+  }
+
+  return { init };
+})();
+
+document.addEventListener('DOMContentLoaded', () => { App.init(); });
+
+// Exposed for browser devtools debugging and future extension (e.g. adding podcast
+// support or Chromecast per the project brief) - poke at window.TarangApp in the
+// console. Nothing internal relies on this; it's a convenience hook only.
+window.TarangApp = { Utils, Storage, RadioAPI, Player, Store, Derived, UI, DataLoader, App };
+
+</script>
+</body>
+</html>
